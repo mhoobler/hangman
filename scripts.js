@@ -1,26 +1,45 @@
 // write to page
 //
 
-var wordArray = ["pine apple", "aloe vera", "che ese"]; //Word possibilites
+var wordArray = ["pineapple", "dinosaur", "cheese"]; //Word possibilites
 var selectedWord =""; //Word used for one round of game
 var wordLetters = selectedWord.split(""); //Letters in selectedWord
 var gameRunning = false; //
 var playerScore = 0;
 var playerLives = 10;
 var winCondition; //???
-var hasPressed = ["0"]; //Array of guesses made, both correct and incorrect
+var hasPressed = []; //Array of guesses made, both correct and incorrect
 var wrongLetters = [];
+var correctLetters = [];
 
 //Game start and restart
 function startGame() {
 
 	console.log("startGame function");
+	
+	
 
 	if(!gameRunning){
 		selectedWord = setWord();
+		document.getElementById("livesCounter").innerHTML = playerLives;
+		document.getElementById("winsCounter").innerHTML = playerScore;
 	} else {
 		alert("You are in a game");
 	};
+};
+
+function restartGame(){
+	var restart = confirm("Are you sure want to lose your progress?");
+	if(restart){
+		gameRunning = false;
+		playerLives = 10;
+		playerScore = 0;
+		document.getElementById("playField").innerHTML = "";
+		document.getElementById("livesCounter").innerHTML = "";
+		document.getElementById("winsCounter").innerHTML = "";
+		document.getElementById("wrongGuessList").innerHTML = "";
+		startGame();
+	}
 };
 
 //Game setup
@@ -28,7 +47,7 @@ function setWord() {
 	gameRunning = true;
 	x = Math.ceil(Math.random() * 3) - 1;
 	console.log(x);
-	testInput = document.getElementById("tester");
+	playField = document.getElementById("playField");
 	
 	selectedWord1 = wordArray[x];
 	wordLetters = selectedWord1.split("");
@@ -43,7 +62,7 @@ function setWord() {
 			var textNode = document.createTextNode("_ ");
 			newElement.appendChild(textNode);
 		}
-		testInput.appendChild(newElement);
+		playField.appendChild(newElement);
 	};
 	//testInput.innerHTML= wordLetters;
 	selectedWord = selectedWord1;
@@ -66,8 +85,8 @@ if(gameRunning){
 	};
 	//Check to see if player input = past input
 	if(noPast){
-		makeGuess(pressedKey);
 		hasPressed.push(pressedKey);
+		makeGuess(pressedKey);
 	};
 };
 };
@@ -93,8 +112,8 @@ function makeGuess(key) {
 	//Add points or take lives
 	if(allWrong == true){
 		alert("Oops!");
-		wrongGuess(key);
 		playerLives--;
+		wrongGuess(key);
 		livesDiv.innerHTML = playerLives;
 	} else {
 		correctGuess(toChange);
@@ -108,9 +127,11 @@ function makeGuess(key) {
 function correctGuess(numbers) {
 	
 	for (i=0; i<numbers.length; i++){
+		correctLetters.push("a");
 		letterPosition = document.getElementById("toFind"+numbers[i]);
 		letterPosition.innerHTML = wordLetters[numbers[i]];
 	};
+	endGame();
 };
 
 //Place wrong guesses here
@@ -122,9 +143,36 @@ function wrongGuess(letter) {
 		var wrongLetter = document.createTextNode(", " + letter);}
 	var wrongGuessDiv = document.getElementById("wrongGuessList");
 	wrongGuessDiv.appendChild(wrongLetter);
+	endGame();
+
 };
 
+function endGame(){
+	console.log(correctLetters);
+	console.log(hasPressed);
+	if(correctLetters.length === wordLetters.length){
+		document.getElementById("wrongGuessList").innerHTML="";
+		wrongLetters=[];
+		hasPressed=[];
+		correctLetters=[];
+		document.getElementById("playField").innerHTML="";
+		setWord();
+		alert("You won!");
+	} else if(playerLives === 0){
+		playerLives = 10;
+		playerScore = 0;
+		document.getElementById("wrongGuessList").innerHTML="";
+		wrongLetters=[];
+		hasPressed=[];
+		correctLetters=[];
+		document.getElementById("playField").innerHTML="";
+		gameRunning = false;
+		startGame();
 
+		alert("You lost :(");
+	};
+
+};
 
 //Complete word guess, maybe add later
 /*function guessWord() {
